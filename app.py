@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, abort
+from flask import Flask, render_template, jsonify, request, abort, send_file
 import requests
 import logging
 from datetime import datetime
@@ -180,6 +180,10 @@ def convert():
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_file('sitemap.xml', mimetype='application/xml')
 
 # Legal routes
 @app.route('/privacy-policy')
