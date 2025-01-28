@@ -224,4 +224,5 @@ if __name__ == '__main__':
     else:
         logger.info(f"Successfully connected to third-party exchange rate provider. {len(currencies)} currencies available.")
     
-    app.run(debug=True)
+    # Only run in debug mode when running locally
+    app.run(debug=False)
