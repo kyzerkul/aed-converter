@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /convert/
+Disallow: /static/
+
+Sitemap: https://aedconverter.com/sitemap.xml

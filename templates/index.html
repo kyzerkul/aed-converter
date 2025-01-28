@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main-content">
+    <div class="container">
+        <div class="converter-card">
+            <h1 class="text-center mb-4">AED Currency Converter</h1>
+            
+            <!-- Base Currency Input -->
+            <div class="base-currency-input mb-4">
+                <div class="base-currency-card">
+                    <div class="currency-header">
+                        <img src="{{ url_for('static', filename='flags/aed.png') }}" alt="UAE flag" class="currency-flag">
+                        <div class="currency-info">
+                            <div class="currency-name">UAE Dirham</div>
+                        </div>
+                    </div>
+                    <div class="amount-input">
+                        <input type="number" class="form-control" id="amount" min="0" step="0.01" placeholder="Enter amount" value="{{ preselected_amount if preselected_amount else '' }}">
+                        <button type="button" class="reset-button" id="resetAmount" aria-label="Reset amount">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8h2c0 3.31 2.69 6 6 6s6-2.69 6-6-2.69-6-6-6C9.04 6 6.54 7.38 5.35 9.5h2.65v2H2V5.5h2v2.52C5.71 5.48 8.63 4 12 4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="mb-4">
+                {% if direct_result %}
+                    {% for currency, info in direct_result.items() %}
+                    <div class="result-card">
+                        <div class="currency-info">
+                            <img src="{{ url_for('static', filename='flags/' + currency.lower() + '.png') }}" alt="{{ currency }} flag" class="currency-flag">
+                            <div>
+                                <div class="currency-code">{{ currency }}</div>
+                                <div class="rate">1 AED = {{ info.rate }} {{ currency }}</div>
+                            </div>
+                        </div>
+                        <div class="amount">{{ "%.2f"|format(info.converted) }}</div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Currency Selection -->
+            <p class="mb-3">Select currencies to convert to:</p>
+            <div class="currency-grid">
+                {% for code, name in currencies.items() %}
+                <div class="currency-button">
+                    <input type="checkbox" class="btn-check" id="btn-{{ code }}" value="{{ code }}" 
+                           autocomplete="off" {% if preselected_currency and code == preselected_currency %}checked{% endif %}>
+                    <label class="btn btn-outline-primary w-100" for="btn-{{ code }}">
+                        <img src="{{ url_for('static', filename='flags/' + code.lower() + '.png') }}" alt="{{ code }} flag" class="currency-flag">
+                        <div class="currency-code">{{ code }}</div>
+                        <div class="currency-name">{{ name }}</div>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+    "name": "AED Convert",
+    "short_name": "AED Convert",
+    "description": "Convert AED to any currency instantly",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "icons": [
+        {
+            "src": "/static/img/favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/img/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ],
+    "prefer_related_applications": false
+}

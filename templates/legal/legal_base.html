@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="legal-content">
+        <h1 class="legal-title">{% block legal_title %}{% endblock %}</h1>
+        <div class="legal-text">
+            {% block legal_content %}{% endblock %}
+        </div>
+        <div class="legal-footer">
+            <p>Last updated: {{ last_updated }}</p>
+            <a href="/" class="btn btn-primary">Back to Converter</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
