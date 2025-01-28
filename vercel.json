@@ -21,7 +21,6 @@
         }
     ],
     "env": {
-        "PYTHONPATH": ".",
-        "API_KEY": "@api-key"
+        "PYTHONPATH": "."
     }
 }
