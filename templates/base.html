@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AED Currency Converter{% endblock %}</title>
+    
+    <!-- iOS specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AED Convert">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='img/favicon-96x96.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <!-- Schema.org markup for Google -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "AED Currency Converter",
+        "description": "Convert UAE Dirhams (AED) to multiple currencies with real-time exchange rates",
+        "url": "https://aedconverter.com",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "All"
+    }
+    </script>
+</head>
+<body>
+    <div id="installBanner" class="install-banner" style="display: none;">
+        <div class="install-content">
+            <div class="install-message">
+                <img src="{{ url_for('static', filename='img/logo/logo.svg') }}" alt="Install AED Convert" class="install-icon">
+                <span>Install AED Convert for quick access!</span>
+            </div>
+            <div class="install-actions">
+                <button id="installButton" class="btn btn-primary btn-sm">Install</button>
+                <button id="closeInstallBanner" class="btn btn-link btn-sm">Not now</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="/" class="nav-logo">
+                <img src="{{ url_for('static', filename='img/logo/logo.svg') }}" 
+                     srcset="{{ url_for('static', filename='img/logo/logo.svg') }} 1x, 
+                             {{ url_for('static', filename='img/logo/logo@2x.svg') }} 2x"
+                     alt="AED Converter Logo" 
+                     class="site-logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="/how-it-works" class="nav-link">How it works</a></li>
+                <li><a href="/crypto" class="nav-link coming-soon">Crypto to AED <span class="soon-badge">Coming Soon</span></a></li>
+            </ul>
+            <button class="mobile-nav-toggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+            </button>
+        </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/privacy-policy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="/disclaimer">Disclaimer</a>
+                <a href="mailto:contact@aedconverter.com">Contact</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 AED Convert. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
