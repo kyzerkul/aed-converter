@@ -1,8 +1,5 @@
 {
-  "name": "aed-converter",
-  "version": "1.0.0",
-  "description": "AED Currency Converter",
   "dependencies": {
-    "@vercel/analytics": "^1.1.1"
+    "@vercel/analytics": "^1.4.1"
   }
 }

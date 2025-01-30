@@ -1,224 +1,202 @@
-// Debounce function to limit API calls
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+// Cache for storing conversion results
+let conversionCache = {};
 
-function showError(message) {
+function showResults(currency, rate, converted) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = `
-        <div class="error-message">
-            ${message}
-        </div>
-    `;
-}
-
-function showResults(data) {
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = '';
-
-    Object.entries(data.results).forEach(([currency, info]) => {
-        const resultCard = document.createElement('div');
-        resultCard.className = 'result-card';
-        resultCard.innerHTML = `
+        <div class="result-card">
             <div class="currency-info">
                 <img src="/static/flags/${currency.toLowerCase()}.png" alt="${currency} flag" class="currency-flag">
                 <div>
                     <div class="currency-code">${currency}</div>
-                    <div class="rate">1 AED = ${info.rate} ${currency}</div>
+                    <div class="rate">1 AED = ${rate} ${currency}</div>
                 </div>
             </div>
-            <div class="amount">${info.converted.toFixed(2)}</div>
-        `;
-        resultsDiv.appendChild(resultCard);
-    });
+            <div class="amount">${converted.toFixed(2)}</div>
+        </div>
+    `;
 }
 
 async function performConversion() {
     // Get amount
-    const amount = document.getElementById('amount').value;
+    const amount = document.getElementById('aedAmount').value;
     if (!amount || amount <= 0) {
         document.getElementById('results').innerHTML = '';
         return;
     }
 
-    // Get selected currencies
-    const selectedCurrencies = [];
-    document.querySelectorAll('.currency-button input[type="checkbox"]:checked').forEach(checkbox => {
-        selectedCurrencies.push(checkbox.value);
-    });
-
-    if (selectedCurrencies.length === 0) {
+    // Get selected currency
+    const selectedCheckbox = document.querySelector('.currency-button input[type="checkbox"]:checked');
+    if (!selectedCheckbox) {
         document.getElementById('results').innerHTML = '';
         return;
     }
 
-    try {
-        // Show loading state
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '<div class="text-center">Converting...</div>';
+    const currency = selectedCheckbox.value;
+    const cacheKey = `${amount}_${currency}`;
 
-        // Make API request
+    // Check cache first
+    if (conversionCache[cacheKey]) {
+        const cached = conversionCache[cacheKey];
+        showResults(currency, cached.rate, cached.converted);
+        return;
+    }
+
+    try {
         const response = await fetch('/convert', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 amount: parseFloat(amount),
-                currencies: selectedCurrencies
+                currencies: [currency]
             })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            showError(data.error || 'Conversion failed');
+            document.getElementById('results').innerHTML = `
+                <div class="error-message">
+                    ${data.error || 'Conversion failed'}
+                </div>
+            `;
             return;
         }
 
-        if (data.success) {
-            showResults(data);
-        } else {
-            showError(data.error || 'Conversion failed');
+        const result = data.results[currency];
+        if (result) {
+            // Cache the result
+            conversionCache[cacheKey] = {
+                rate: result.rate,
+                converted: result.converted
+            };
+            showResults(currency, result.rate, result.converted);
         }
 
     } catch (error) {
         console.error('Error:', error);
-        showError('Failed to connect to the server');
+        document.getElementById('results').innerHTML = `
+            <div class="error-message">
+                Failed to connect to the server
+            </div>
+        `;
     }
 }
 
-// Debounced version of convertCurrency that waits 10ms after the user stops typing
-const debouncedConversion = debounce(performConversion, 10);
-
-// Add event listeners for real-time conversion
+// Add event listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Listen for amount changes
-    const amountInput = document.getElementById('amount');
-    amountInput.addEventListener('input', debouncedConversion);
+    const amountInput = document.getElementById('aedAmount');
+    if (amountInput) {
+        amountInput.addEventListener('input', performConversion);
+    }
 
     // Listen for currency selection changes
     document.querySelectorAll('.currency-button input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', debouncedConversion);
+        checkbox.addEventListener('change', () => {
+            // Uncheck all other checkboxes
+            document.querySelectorAll('.currency-button input[type="checkbox"]').forEach(cb => {
+                if (cb !== checkbox) {
+                    cb.checked = false;
+                }
+            });
+            performConversion();
+        });
     });
 
     // Reset button functionality
     const resetButton = document.getElementById('resetAmount');
-    resetButton.addEventListener('click', function() {
-        amountInput.value = '';
-        amountInput.focus();
-        document.getElementById('results').innerHTML = '';
-    });
-
-    // Initial conversion if amount is present and currencies are selected
-    if (amountInput.value) {
-        debouncedConversion();
-    }
-
-    // Mobile Navigation
-    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-    const navLinks = document.querySelector('.nav-links');
-
-    if (mobileNavToggle && navLinks) {
-        mobileNavToggle.addEventListener('click', function() {
-            navLinks.classList.toggle('active');
-            this.classList.toggle('active');
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            if (amountInput) {
+                amountInput.value = '';
+                amountInput.focus();
+                document.getElementById('results').innerHTML = '';
+                conversionCache = {}; // Clear cache
+                // Uncheck all currency checkboxes
+                document.querySelectorAll('.currency-button input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
         });
     }
+});
 
-    // Install PWA
-    let deferredPrompt;
+// PWA Installation
+let deferredPrompt;
+
+// iOS detection
+function isIOS() {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+    ].includes(navigator.platform)
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+}
+
+function showIOSInstall() {
     const installBanner = document.getElementById('installBanner');
-    const installButton = document.getElementById('installButton');
-    const closeInstallBanner = document.getElementById('closeInstallBanner');
-    const installMessage = document.querySelector('.install-message span');
+    if (installBanner && isIOS() && !hasUserDismissedInstall()) {
+        installBanner.style.display = 'block';
+    }
+}
 
-    // Detect iOS
-    const isIOS = () => {
-        return [
-            'iPad Simulator',
-            'iPhone Simulator',
-            'iPod Simulator',
-            'iPad',
-            'iPhone',
-            'iPod'
-        ].includes(navigator.platform)
-        || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-    };
+function hasUserDismissedInstall() {
+    return localStorage.getItem('installDismissed') === 'true';
+}
 
-    // Show iOS-specific install instructions
-    const showIOSInstall = () => {
-        if (isIOS() && !hasUserDismissedInstall()) {
-            installMessage.textContent = 'Install AED Convert: tap Share then "Add to Home Screen"';
-            installButton.style.display = 'none';
-            installBanner.classList.add('show');
-        }
-    };
+function markInstallDismissed() {
+    localStorage.setItem('installDismissed', 'true');
+    const installBanner = document.getElementById('installBanner');
+    if (installBanner) {
+        installBanner.style.display = 'none';
+    }
+}
 
-    // Check if user has already dismissed or installed
-    const hasUserDismissedInstall = () => {
-        return localStorage.getItem('dismissedInstall') === 'true';
-    };
-
-    const markInstallDismissed = () => {
-        localStorage.setItem('dismissedInstall', 'true');
-        // Reset after 30 days
-        setTimeout(() => {
-            localStorage.removeItem('dismissedInstall');
-        }, 30 * 24 * 60 * 60 * 1000);
-    };
-
+// Installation event handlers
+document.addEventListener('DOMContentLoaded', () => {
     // Show install prompt for Android/Desktop
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-
-        // Show the install banner if not dismissed
-        if (!hasUserDismissedInstall()) {
-            installMessage.textContent = 'Install AED Convert for quick access!';
-            installButton.style.display = 'block';
-            installBanner.classList.add('show');
-        }
+        showInstallButton();
     });
 
-    installButton.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-
-        // Show the install prompt
-        deferredPrompt.prompt();
-
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        // Hide the banner
-        installBanner.classList.remove('show');
-        
-        if (outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-        }
-        
-        deferredPrompt = null;
-    });
-
-    closeInstallBanner.addEventListener('click', () => {
-        installBanner.classList.remove('show');
-        markInstallDismissed();
-    });
-
-    // Hide banner if app is already installed
-    window.addEventListener('appinstalled', () => {
-        installBanner.classList.remove('show');
-        deferredPrompt = null;
-    });
-
-    // Check for iOS when page loads
+    // Show iOS-specific install banner
     showIOSInstall();
+
+    // Handle install button click
+    const installButton = document.getElementById('installButton');
+    if (installButton) {
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            } else if (isIOS()) {
+                // Show iOS-specific instructions
+                alert('To install this app on iOS: tap the share button below and then "Add to Home Screen"');
+            }
+        });
+    }
+
+    // Handle close button click
+    const closeButton = document.getElementById('closeInstallBanner');
+    if (closeButton) {
+        closeButton.addEventListener('click', markInstallDismissed);
+    }
 });
+
+function showInstallButton() {
+    const installButton = document.getElementById('installButton');
+    if (installButton) {
+        installButton.style.display = 'block';
+    }
+}

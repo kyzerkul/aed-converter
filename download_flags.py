@@ -24,7 +24,8 @@ COUNTRY_CODES = {
     'EUR': 'eu',  # Union européenne
     'SSP': 'ss',  # Soudan du Sud
     'RUB': 'ru',  # Russie
-    'UAH': 'ua'   # Ukraine
+    'UAH': 'ua',  # Ukraine
+    'USD': 'us',   # Etats-Unis
 }
 
 def download_flag(country_code, currency_code):
@@ -50,6 +51,7 @@ def main():
     # Télécharge chaque drapeau
     for currency_code, country_code in COUNTRY_CODES.items():
         download_flag(country_code, currency_code)
+
 
 if __name__ == '__main__':
     main()

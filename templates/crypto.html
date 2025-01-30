@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Crypto to AED - Coming Soon | AED Converter{% endblock %}
+
+{% block content %}
+<div class="coming-soon-page">
+    <div class="container">
+        <div class="coming-soon-content text-center">
+            <div class="coming-soon-icon">
+                <img src="{{ url_for('static', filename='img/crypto-icon.svg') }}" alt="Crypto to AED" class="mb-4">
+            </div>
+            <h1 class="display-4 mb-4">Crypto to AED Converter</h1>
+            <p class="lead mb-5">We're working hard to bring you real-time cryptocurrency conversion to UAE Dirhams.</p>
+            
+            <div class="features-preview mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <i class="feature-icon">⚡</i>
+                            <h3>Real-time Rates</h3>
+                            <p>Live cryptocurrency exchange rates from multiple sources</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <i class="feature-icon">🔒</i>
+                            <h3>Secure & Reliable</h3>
+                            <p>Trusted data from leading crypto exchanges</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <i class="feature-icon">📊</i>
+                            <h3>Market Insights</h3>
+                            <p>Detailed market analysis and trends</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notification-form">
+                <h2 class="h4 mb-4">Get Notified When We Launch</h2>
+                <form id="notifyForm" class="mb-4">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Enter your email" required>
+                        <button class="btn btn-primary" type="submit">Notify Me</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="countdown mt-5">
+                <p class="text-muted">Estimated Launch</p>
+                <div class="countdown-timer">
+                    <div class="countdown-item">
+                        <span class="countdown-value">30</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

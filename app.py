@@ -2,6 +2,8 @@ from flask import Flask, render_template, jsonify, request, abort, send_file
 import requests
 import logging
 from datetime import datetime
+from functools import lru_cache
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -23,6 +25,7 @@ SPECIFIC_CURRENCIES = {
     'PKR': 'Pakistani Rupee',
     'EGP': 'Egyptian Pound',
     'PHP': 'Philippine Peso',
+    'USD': 'US Dollar',
     'IDR': 'Indonesian Rupiah',
     'YER': 'Yemeni Rial',
     'JOD': 'Jordanian Dinar',
@@ -62,32 +65,41 @@ def get_currencies():
         logger.error(f"Failed to fetch currencies: {str(e)}")
         return SPECIFIC_CURRENCIES  # Fallback to our specific list if API fails
 
+# Cache for storing conversion results
+@lru_cache(maxsize=1000)
+def get_cached_conversion(amount, from_currency, to_currency, timestamp):
+    """Get cached conversion result"""
+    return convert_currency(amount, from_currency, [to_currency])
+
 def convert_currency(amount, from_currency, to_currencies):
     """Convert currency using third-party exchange rate provider"""
     try:
-        # Join target currencies with commas
+        # Build URL with parameters - only request the currencies we need
         currencies_str = ','.join(to_currencies)
+        url = f"{API_BASE_URL}/convert?api_key={API_KEY}&from={from_currency}&to={currencies_str}&amount={amount}"
         
-        # Build URL with parameters
-        url = f"{API_BASE_URL}/fetch-multi?api_key={API_KEY}&from={from_currency}&to={currencies_str}"
-        headers = {"accept": "application/json"}
+        # Use a shorter timeout
+        response = requests.get(url, timeout=1)
         
-        logger.debug(f"Converting {amount} {from_currency} to {currencies_str}")
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        # Fast fail if response is not ok
+        if not response.ok:
+            raise ValueError("API request failed")
         
         data = response.json()
-        rates = data.get('results', {})
+        if not data or 'result' not in data:
+            raise ValueError("Invalid API response")
         
-        # Calculate converted amounts
+        # Process only the currencies we need
         result = {}
-        for currency, rate in rates.items():
-            converted = round(amount * float(rate), 2)
-            result[currency] = {
-                'rate': rate,
-                'converted': converted,
-                'name': SPECIFIC_CURRENCIES.get(currency, currency)
-            }
+        for currency in to_currencies:
+            converted = data['result'].get(currency)
+            if converted is not None:
+                rate = converted / amount
+                result[currency] = {
+                    'rate': round(rate, 4),
+                    'converted': round(converted, 2),
+                    'name': SPECIFIC_CURRENCIES.get(currency, currency)
+                }
         
         return result
         
@@ -163,9 +175,12 @@ def convert():
         if not target_currencies:
             return jsonify({'error': 'No currencies selected'}), 400
             
-        # Perform conversion
+        # Get current hour timestamp for cache
+        current_hour = int(time.time() / 3600)
+        
         try:
-            result = convert_currency(amount, 'AED', target_currencies)
+            # Use cached result if available
+            result = get_cached_conversion(amount, 'AED', target_currencies[0], current_hour)
             return jsonify({
                 'success': True,
                 'amount': amount,
@@ -184,6 +199,11 @@ def convert():
 @app.route('/sitemap.xml')
 def sitemap():
     return send_file('sitemap.xml', mimetype='application/xml')
+
+# How it works route
+@app.route('/how-it-works')
+def how_it_works():
+    return render_template('how-it-works.html')
 
 # Legal routes
 @app.route('/privacy-policy')
@@ -206,6 +226,10 @@ def disclaimer():
     return render_template('legal/disclaimer.html',
                          currencies=currencies,
                          last_updated="January 28, 2025")
+
+@app.route('/crypto')
+def crypto():
+    return render_template('crypto.html')
 
 # Error handlers
 @app.errorhandler(404)
