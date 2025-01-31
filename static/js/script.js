@@ -15,6 +15,12 @@ function showResults(currency, rate, converted) {
             <div class="amount">${converted.toFixed(2)}</div>
         </div>
     `;
+
+    // Scroll to results smoothly
+    const aedInputSection = document.querySelector('.aed-input-section');
+    if (aedInputSection) {
+        aedInputSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 async function performConversion() {
