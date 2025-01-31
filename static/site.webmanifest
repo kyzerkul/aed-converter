@@ -4,20 +4,21 @@
     "description": "Convert UAE Dirhams (AED) to multiple currencies with real-time exchange rates",
     "start_url": "/",
     "display": "standalone",
+    "orientation": "portrait",
     "background_color": "#ffffff",
     "theme_color": "#2196F3",
     "icons": [
         {
-            "src": "/static/img/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
+            "src": "/static/img/favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png"
         },
         {
-            "src": "/static/img/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
+            "src": "/static/img/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
         }
-    ]
+    ],
+    "prefer_related_applications": false,
+    "scope": "/"
 }
