@@ -133,6 +133,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/js/sw.js')
+            .then(registration => {
+                console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    });
+}
+
 // PWA Installation
 let deferredPrompt;
 
@@ -178,7 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Show iOS-specific install banner
-    showIOSInstall();
+    if (isIOS()) {
+        showIOSInstall();
+    }
 
     // Handle install button click
     const installButton = document.getElementById('installButton');
@@ -201,7 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle close button click
     const closeButton = document.getElementById('closeInstallBanner');
     if (closeButton) {
-        closeButton.addEventListener('click', markInstallDismissed);
+        closeButton.addEventListener('click', () => {
+            markInstallDismissed();
+        });
     }
 });
 
