@@ -120,6 +120,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Mobile menu toggle
+    const mobileToggle = document.querySelector('.mobile-nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            mobileToggle.classList.toggle('active');
+        });
+    }
 });
 
 // PWA Installation

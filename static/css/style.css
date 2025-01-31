@@ -121,15 +121,29 @@
         top: 100%;
         left: 0;
         right: 0;
-        background-color: white;
-        padding: 0.5rem;
+        background: white;
+        padding: 1rem;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        flex-direction: column;
-        gap: 0.5rem;
     }
 
     .nav-links.active {
         display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .mobile-nav-toggle.active .hamburger {
+        background: transparent;
+    }
+
+    .mobile-nav-toggle.active .hamburger::before {
+        transform: rotate(45deg);
+        top: 0;
+    }
+
+    .mobile-nav-toggle.active .hamburger::after {
+        transform: rotate(-45deg);
+        bottom: 0;
     }
 
     .site-logo {
@@ -288,9 +302,9 @@ body {
 
 /* Reset Button */
 .btn-reset {
-    border: none;
-    background: #dc3545;
-    color: rgb(238, 22, 22);
+    border: 1px solid #dc3545;
+    background: white;
+    color: #dc3545;
     min-width: 32px;
     width: 32px;
     height: 32px;
@@ -300,21 +314,20 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
     font-size: 13px;
-    flex-shrink: 0;
     padding: 0;
 }
 
 .btn-reset:hover {
-    background: #c82333;
+    background: #fff5f5;
     transform: scale(1.05);
-    box-shadow: 0 3px 6px rgba(220, 53, 69, 0.4);
+    box-shadow: 0 3px 6px rgba(220, 53, 69, 0.2);
 }
 
 .btn-reset:active {
     transform: scale(0.95);
-    background: #bd2130;
+    background: #fff0f0;
 }
 
 /* Results Section */
